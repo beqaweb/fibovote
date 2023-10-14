@@ -1,0 +1,58 @@
+{
+  "rules": {
+    "users": {
+      "$user_id": {
+        ".read": true,
+        ".write":"auth.uid === $user_id"
+      }
+    },
+    "rooms": {
+      "$room_id": {
+        ".read": true,
+        ".write": "newData.child('owner').val() === auth.uid || data.child('owner').val() === auth.uid",
+
+        "heroes": {
+          "$user_id": {
+            ".validate": "newData.isString()",
+            ".write": "auth.uid === $user_id || auth.uid === root.child('rooms').child($room_id).child('owner').val()"
+          }
+        },
+
+        "hostAway": {
+          ".validate": "newData.isBoolean()",
+          ".write": "auth.uid === root.child('rooms').child($room_id).child('owner').val()"
+        },
+
+        "members": {
+          "$user_id": {
+            ".validate": "newData.val() === 'host' || newData.val() === 'spectator' || newData.val() === 'voter'",
+            ".write": "auth.uid === $user_id || auth.uid === root.child('rooms').child($room_id).child('owner').val()"
+          }
+        },
+
+        "owner": {
+          ".write": false
+        },
+
+        "reveal": {
+          ".validate": "newData.val() === null || newData.isNumber()",
+          ".write": "auth.uid === root.child('rooms').child($room_id).child('owner').val()"
+        },
+
+        "votes": {
+          "$user_id": {
+            ".validate": "newData.isNumber()",
+            ".write": "auth.uid === $user_id"
+          }
+        },
+
+        "banned": {
+          "$user_id": {
+            ".validate": "newData.isNumber()",
+            ".write": "auth.uid === root.child('rooms').child($room_id).child('owner').val()"
+          }
+        }
+      }
+    }
+  }
+}
